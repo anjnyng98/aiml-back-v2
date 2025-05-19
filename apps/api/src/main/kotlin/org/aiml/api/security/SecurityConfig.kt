@@ -19,7 +19,7 @@ class SecurityConfig(
       .csrf() { it.disable() }
       .authorizeHttpRequests { requests ->
         requests
-          .requestMatchers("/api/auth/**", "/test/**").permitAll()
+          .requestMatchers("/api/auth/**", "/api/project/search", "/test/**").permitAll()
           .anyRequest().authenticated() // 그 외에는 인증이 필요
       }
       .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java) // JWT 필터 추가

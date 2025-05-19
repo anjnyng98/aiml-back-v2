@@ -3,6 +3,8 @@ package org.aiml.project.application.service
 import org.aiml.project.application.dto.ProjectDTO
 import org.aiml.project.domain.port.inbound.ProjectQueryService
 import org.aiml.project.domain.port.outbound.ProjectPersistencePort
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -22,4 +24,7 @@ class ProjectQueryServiceImpl(
     return projectPersistencePort.findAll().getOrThrow().map { ProjectDTO.from(it) }
   }
 
+  override fun searchByQuery(query: String, pageable: Pageable): Page<ProjectDTO> {
+    return projectPersistencePort.searchByQuery(query, pageable).map { ProjectDTO.from(it) }
+  }
 }

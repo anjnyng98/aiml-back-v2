@@ -3,11 +3,14 @@ package org.aiml.api.controller
 import org.aiml.api.common.response.*
 import org.aiml.api.dto.project.*
 import org.aiml.api.dto.scene.*
+import org.aiml.project.domain.port.inbound.ProjectQueryService
 import org.aiml.project_user.application.facade.ProjectCommandFacade
 import org.aiml.project_user.application.facade.UserProjectQueryFacade
 import org.aiml.scene.application.facade.SceneCommandFacade
 import org.aiml.scene.application.facade.SceneQueryFacade
 import org.aiml.user.infra.security.CustomUserPrincipal
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -17,6 +20,7 @@ import java.util.*
 @RequestMapping("/api/project")
 class ProjectController(
   private val projectCommandFacade: ProjectCommandFacade,
+  private val projectQueryService: ProjectQueryService,
   private val userProjectQueryFacade: UserProjectQueryFacade,
   private val sceneCommandFacade: SceneCommandFacade,
   private val sceneQueryFacade: SceneQueryFacade,
@@ -76,5 +80,15 @@ class ProjectController(
   ): ResponseEntity<ApiResponse<List<SceneResponse>>> {
     val scenes = sceneQueryFacade.loadScenesByProject(principal.userId, projectId)
     return ok(scenes.map { SceneResponse.fromDTO(it) })
+  }
+
+  @GetMapping("/search")
+  fun searchProjects(
+    @RequestParam("query", required = true) query: String,
+    @RequestParam("pageNum", defaultValue = "0") page: Int,
+    @RequestParam("pageSize", defaultValue = "10") size: Int,
+  ): ResponseEntity<ApiResponse<Page<ProjectBaseResponse>>> {
+    val pInfosPage = projectQueryService.searchByQuery(query, PageRequest.of(page, size))
+    return ok(pInfosPage.map { ProjectBaseResponse.from(it) })
   }
 }

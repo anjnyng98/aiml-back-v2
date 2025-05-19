@@ -4,6 +4,8 @@ import org.aiml.project.domain.model.Project
 import org.aiml.project.domain.port.outbound.ProjectPersistencePort
 import org.aiml.project.infra.persistence.ProjectEntity
 import org.aiml.project.infra.persistence.repository.ProjectRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -43,5 +45,9 @@ class ProjectPersistenceAdapter(
 
   override fun deleteAll(): Result<Unit> = runCatching {
     projectRepository.deleteAll()
+  }
+
+  override fun searchByQuery(query: String, pageable: Pageable): Page<Project> {
+    return projectRepository.findByQuery(query, pageable).map { it.toDomain() }
   }
 }
